@@ -15,7 +15,8 @@
 @optional
 -(void)appiraterDidDisplayAlert:(Appirater *)appirater;
 -(void)appiraterDidDeclineToRate:(Appirater *)appirater;
--(void)appiraterDidOptToRate:(Appirater *)appirater;
+-(BOOL)appiraterDidOptToRate:(Appirater *)appirater;  // return NO to block the switch to rating
+-(BOOL)appiraterDidOptToRate:(Appirater *)appirater buttonIndex:(NSInteger)buttenIndex;
 -(void)appiraterDidOptToRemindLater:(Appirater *)appirater;
 -(void)appiraterWillPresentModalView:(Appirater *)appirater animated:(BOOL)animated;
 -(void)appiraterDidDismissModalView:(Appirater *)appirater animated:(BOOL)animated;
