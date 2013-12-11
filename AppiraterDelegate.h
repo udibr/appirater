@@ -15,8 +15,13 @@
 @optional
 -(void)appiraterDidDisplayAlert:(Appirater *)appirater;
 -(void)appiraterDidDeclineToRate:(Appirater *)appirater;
--(BOOL)appiraterDidOptToRate:(Appirater *)appirater;  // return NO to block the switch to rating
--(BOOL)appiraterDidOptToRate:(Appirater *)appirater buttonIndex:(NSInteger)buttenIndex;
+-(void)appiraterDidOptToRate:(Appirater *)appirater;
+
+// This delegate is called only if appiraterDidOptToRate: is not available or
+// if there are more than one rate button and the button pressed is not the first.
+// The ratting is not performed (you can call it yourself with [Appirater rateApp]
+-(void)appiraterDidOptToRate:(Appirater *)appirater buttonIndex:(NSInteger)buttenIndex;
+
 -(void)appiraterDidOptToRemindLater:(Appirater *)appirater;
 -(void)appiraterWillPresentModalView:(Appirater *)appirater animated:(BOOL)animated;
 -(void)appiraterDidDismissModalView:(Appirater *)appirater animated:(BOOL)animated;

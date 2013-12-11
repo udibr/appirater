@@ -69,6 +69,16 @@ static UIStatusBarStyle _statusBarStyle;
 static BOOL _modalOpen = false;
 static BOOL _alwaysUseMainBundle = NO;
 
+// APPIRATER_MESSAGE, APPIRATER_MESSAGE_TITLE, APPIRATER_CANCEL_BUTTON, APPIRATER_RATE_BUTTONS, APPIRATER_RATE_LATER
+static NSString* _appiraterDefault;
+static NSString* _appiraterMessage;
+static NSString* _appiraterMessageTitle;
+static NSString* _appiraterCancelButton; // set to @"<skip>" if you dont want it to appear
+static NSString* _appiraterRateLater;
+static NSArray* _appiraterRateButtons;
+
+
+
 @interface Appirater ()
 - (BOOL)connectedToNetwork;
 + (Appirater*)sharedInstance;
@@ -122,6 +132,26 @@ static BOOL _alwaysUseMainBundle = NO;
 }
 + (void)setAlwaysUseMainBundle:(BOOL)alwaysUseMainBundle {
     _alwaysUseMainBundle = alwaysUseMainBundle;
+}
+
++ (void) setAppiraterMessage:(NSString *)appiraterMessage {
+    _appiraterMessage = appiraterMessage;
+}
+
++ (void) setAppiraterMessageTitle:(NSString *)appiraterMessageTitle {
+    _appiraterMessageTitle = appiraterMessageTitle;
+}
+
++ (void) setAppiraterCancelButton:(NSString *)appiraterCancelButton {
+    _appiraterCancelButton = appiraterCancelButton;
+}
+
++ (void) setAppiraterRateLater:(NSString *)appiraterRateLater {
+    _appiraterRateLater = appiraterRateLater;
+}
+
++ (void) setAppiraterRateButtons:(NSArray *)appiraterRateButtons {
+    _appiraterRateButtons = appiraterRateButtons;
 }
 
 + (NSBundle *)bundle
@@ -206,19 +236,28 @@ static BOOL _alwaysUseMainBundle = NO;
 
 - (void)showRatingAlert {
     UIAlertView *alertView = nil;
-    if (APPIRATER_RATE2_BUTTON != nil) {
-        alertView = [[UIAlertView alloc] initWithTitle:APPIRATER_MESSAGE_TITLE
-                                                             message:APPIRATER_MESSAGE
-                                                            delegate:self
-                                                   cancelButtonTitle:APPIRATER_CANCEL_BUTTON
-                                                   otherButtonTitles:APPIRATER_RATE_BUTTON, APPIRATER_RATE2_BUTTON, APPIRATER_RATE_LATER, nil];
+    NSString* cancelButton =_appiraterCancelButton;
+    if (cancelButton) {
+        if ([cancelButton isEqualToString:@"<skip>"]) {
+            cancelButton = nil;
+        }
     } else {
-        alertView = [[UIAlertView alloc] initWithTitle:APPIRATER_MESSAGE_TITLE
-                                               message:APPIRATER_MESSAGE
-                                              delegate:self
-                                     cancelButtonTitle:APPIRATER_CANCEL_BUTTON
-                                     otherButtonTitles:APPIRATER_RATE_BUTTON, APPIRATER_RATE_LATER, nil];        
+        cancelButton = APPIRATER_CANCEL_BUTTON;
     }
+    alertView = [[UIAlertView alloc]
+                 initWithTitle: _appiraterMessageTitle ? _appiraterMessageTitle : APPIRATER_MESSAGE_TITLE
+                 message: _appiraterMessage ? _appiraterMessage : APPIRATER_MESSAGE
+                 delegate: self
+                 cancelButtonTitle: cancelButton
+                 otherButtonTitles: nil];
+    if (_appiraterRateButtons) {
+        for (NSString* rateButton in _appiraterRateButtons) {
+            [alertView addButtonWithTitle:rateButton];
+        }
+    } else {
+        [alertView addButtonWithTitle:APPIRATER_RATE_BUTTON];
+    }
+    [alertView addButtonWithTitle:_appiraterRateLater ? _appiraterRateLater : APPIRATER_RATE_LATER];
 	self.ratingAlert = alertView;
     [alertView show];
 
@@ -551,13 +590,10 @@ static BOOL _alwaysUseMainBundle = NO;
     } else {
         // they want to rate it
         if(buttonIndex == 1 && delegate && [delegate respondsToSelector:@selector(appiraterDidOptToRate:)]){
-            if ([delegate appiraterDidOptToRate:self]) {
-                [Appirater rateApp];                    
-            }
+            [Appirater rateApp];
+            [delegate appiraterDidOptToRate:self];
         } else if(delegate && [delegate respondsToSelector:@selector(appiraterDidOptToRate:buttonIndex:)]){
-            if ([delegate appiraterDidOptToRate:self buttonIndex:buttonIndex]) {
-                [Appirater rateApp];
-            }
+            [delegate appiraterDidOptToRate:self buttonIndex:buttonIndex];
         }
 	}
 }
