@@ -573,7 +573,7 @@ static NSArray* _appiraterRateButtons;
     
     id <AppiraterDelegate> delegate = _delegate;
 	
-	if (buttonIndex == 0) {
+	if (buttonIndex == [alertView cancelButtonIndex]) {
         // they don't want to rate it
         [userDefaults setBool:YES forKey:kAppiraterDeclinedToRate];
         [userDefaults synchronize];
@@ -589,7 +589,7 @@ static NSArray* _appiraterRateButtons;
         }
     } else {
         // they want to rate it
-        if(buttonIndex == 1 && delegate && [delegate respondsToSelector:@selector(appiraterDidOptToRate:)]){
+        if(delegate && [delegate respondsToSelector:@selector(appiraterDidOptToRate:)]){
             [Appirater rateApp];
             [delegate appiraterDidOptToRate:self];
         } else if(delegate && [delegate respondsToSelector:@selector(appiraterDidOptToRate:buttonIndex:)]){
